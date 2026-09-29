@@ -1,0 +1,79 @@
+# Local development stack for AI Tutor.
+#
+# Every host port is deliberately off the service default so this stack can run
+# alongside other local Postgres / Redis / MinIO installations without clashing.
+# See docs/architecture/08_Port_Allocation.md for the full map.
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: ai-tutor-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aitutor}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aitutor}
+      POSTGRES_DB: ${POSTGRES_DB:-aitutor}
+      PGPORT: 5432
+    ports:
+      - '${POSTGRES_HOST_PORT:-5442}:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infra/docker/postgres/init.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-aitutor} -d ${POSTGRES_DB:-aitutor}']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    container_name: ai-tutor-redis
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    ports:
+      - '${REDIS_HOST_PORT:-6380}:6379'
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # S3-compatible object storage.
+  #
+  # Doc 07 §4 specifies MinIO. MinIO's images were withdrawn from public Docker
+  # Hub and now require authentication, so local development uses SeaweedFS's
+  # S3 gateway instead — same S3 API, same SDK, no registry credentials. The
+  # deployed environments still target real S3-compatible storage, so nothing
+  # in application code depends on which one runs locally.
+  seaweedfs:
+    image: chrislusf/seaweedfs:latest
+    container_name: ai-tutor-s3
+    restart: unless-stopped
+    command:
+      - server
+      - -dir=/data
+      - -master.volumeSizeLimitMB=256
+      - -volume.max=10
+      - -filer
+      - -s3
+      - -s3.port=8333
+      - -s3.config=/etc/seaweedfs/s3-config.json
+    ports:
+      - '${S3_HOST_PORT:-9010}:8333' # S3 API
+      - '${S3_ADMIN_HOST_PORT:-9011}:9333' # master UI
+    volumes:
+      - seaweedfs-data:/data
+      - ./infra/docker/seaweedfs/s3-config.json:/etc/seaweedfs/s3-config.json:ro
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '-', 'http://localhost:9333/cluster/healthz']
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+
+volumes:
+  postgres-data:
+  redis-data:
+  seaweedfs-data:

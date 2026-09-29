@@ -1,0 +1,30 @@
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
+
+@Injectable()
+export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+  private readonly logger = new Logger(PrismaService.name);
+
+  constructor() {
+    super({
+      log: [
+        { emit: 'event', level: 'warn' },
+        { emit: 'event', level: 'error' },
+      ],
+    });
+  }
+
+  async onModuleInit(): Promise<void> {
+    await this.$connect();
+    this.logger.log('Connected to PostgreSQL');
+  }
+
+  async onModuleDestroy(): Promise<void> {
+    await this.$disconnect();
+  }
+
+  /** Used by the readiness probe. Cheap, and exercises a real round trip. */
+  async ping(): Promise<void> {
+    await this.$queryRaw`SELECT 1`;
+  }
+}

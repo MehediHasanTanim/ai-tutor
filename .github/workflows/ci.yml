@@ -1,0 +1,122 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+  PNPM_VERSION: '9.15.0'
+
+jobs:
+  api:
+    name: API — lint, typecheck, test, build
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: aitutor
+          POSTGRES_PASSWORD: aitutor
+          POSTGRES_DB: aitutor_test
+        # CI containers are isolated, so the service default port is fine here;
+        # the non-default host ports exist to avoid clashes on developer machines.
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U aitutor"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+
+    env:
+      DATABASE_URL: postgresql://aitutor:aitutor@localhost:5432/aitutor_test?schema=public
+      REDIS_URL: redis://localhost:6379
+      JWT_ACCESS_SECRET: ci-access-secret-not-a-real-secret
+      JWT_REFRESH_SECRET: ci-refresh-secret-not-a-real-secret
+      NODE_ENV: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build shared-types
+        run: pnpm --filter @ai-tutor/shared-types build
+
+      - name: Prisma generate
+        run: pnpm --filter @ai-tutor/api exec prisma generate
+
+      - run: pnpm --filter @ai-tutor/api lint
+      - run: pnpm --filter @ai-tutor/api typecheck
+
+      - name: Apply migrations
+        run: pnpm --filter @ai-tutor/api exec prisma migrate deploy
+
+      - name: Unit tests
+        run: pnpm --filter @ai-tutor/api test
+
+      - name: Integration tests
+        run: pnpm --filter @ai-tutor/api test:e2e
+
+      - run: pnpm --filter @ai-tutor/api build
+
+      - name: Check OpenAPI spec is up to date
+        run: |
+          pnpm --filter @ai-tutor/api openapi:generate
+          if ! git diff --exit-code --stat apps/api/openapi.json; then
+            echo "::error::openapi.json is stale. Run 'pnpm --filter @ai-tutor/api openapi:generate' and commit the result."
+            exit 1
+          fi
+
+  format:
+    name: Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+
+  mobile:
+    name: Mobile — analyze, test
+    runs-on: ubuntu-latest
+    # Enabled when apps/mobile is scaffolded. Doc 07 Weeks 1–2 requires CI on
+    # all three apps; the job is defined now so wiring it up is one line.
+    if: ${{ hashFiles('apps/mobile/pubspec.yaml') != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+        working-directory: apps/mobile
+      - run: flutter analyze
+        working-directory: apps/mobile
+      - run: flutter test
+        working-directory: apps/mobile

@@ -1,0 +1,3 @@
+# Typecheck before pushing. Lint and tests run in CI; this catches the class of
+# break that makes a whole PR un-reviewable.
+pnpm -r typecheck

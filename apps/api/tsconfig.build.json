@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    // Nest's `deleteOutDir` wipes dist on every build, which leaves an
+    // incremental .tsbuildinfo claiming outputs exist that no longer do — tsc
+    // then emits nothing and the app dies on a missing module at runtime.
+    "incremental": false
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "test", "prisma", "scripts", "**/*.spec.ts"]
+}

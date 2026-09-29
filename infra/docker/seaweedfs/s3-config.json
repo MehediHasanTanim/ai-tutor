@@ -1,0 +1,14 @@
+{
+  "identities": [
+    {
+      "name": "ai-tutor-local",
+      "credentials": [
+        {
+          "accessKey": "aitutor",
+          "secretKey": "aitutor123"
+        }
+      ],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    }
+  ]
+}
