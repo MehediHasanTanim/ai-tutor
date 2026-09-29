@@ -88,6 +88,9 @@ jobs:
             exit 1
           fi
 
+      - name: Check Flutter client matches the API contract
+        run: pnpm check:contract
+
   format:
     name: Formatting
     runs-on: ubuntu-latest
@@ -106,17 +109,24 @@ jobs:
   mobile:
     name: Mobile — analyze, test
     runs-on: ubuntu-latest
-    # Enabled when apps/mobile is scaffolded. Doc 07 Weeks 1–2 requires CI on
-    # all three apps; the job is defined now so wiring it up is one line.
-    if: ${{ hashFiles('apps/mobile/pubspec.yaml') != '' }}
+    defaults:
+      run:
+        working-directory: apps/mobile
     steps:
       - uses: actions/checkout@v4
+
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
+
       - run: flutter pub get
-        working-directory: apps/mobile
-      - run: flutter analyze
-        working-directory: apps/mobile
+
+      # Freezed output is gitignored, so it is generated here rather than
+      # committed. A model change that does not compile fails at this step.
+      - name: Generate Freezed models
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - run: flutter analyze --fatal-infos
+
       - run: flutter test
-        working-directory: apps/mobile

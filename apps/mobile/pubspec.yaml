@@ -1,0 +1,73 @@
+name: ai_tutor
+description: AI Tutor Bangladesh — curriculum-grounded AI tutor for Class 9–10 Science.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management — doc 05 §1
+  flutter_riverpod: ^2.6.1
+
+  # Navigation
+  go_router: ^14.6.2
+
+  # Networking
+  dio: ^5.7.0
+
+  # Models
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.12.0
+
+  # Storage
+  flutter_secure_storage: ^9.2.2
+  shared_preferences: ^2.3.3
+
+  # Utilities
+  equatable: ^2.0.7
+  intl: ^0.20.2
+
+  # Localization
+  flutter_localizations:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+  # Codegen is used for Freezed models only. Riverpod providers are written by
+  # hand — the generator adds a build step without changing what the providers
+  # do, and riverpod_lint/custom_lint currently pull an analyzer_plugin that
+  # does not compile against the analyzer this Dart SDK ships.
+  build_runner: ^2.16.1
+  freezed: ^4.0.2
+  json_serializable: ^6.14.1
+
+  mocktail: ^1.0.4
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/fonts/
+
+  fonts:
+    # Bundled rather than fetched at runtime. Doc 07 flags Bangla conjunct
+    # rendering as something to verify on a real low-end device, and this user
+    # base is explicitly data-constrained — a first-launch font download is
+    # both a blank-text risk and a cost.
+    - family: NotoSansBengali
+      fonts:
+        - asset: assets/fonts/NotoSansBengali-400.ttf
+          weight: 400
+        - asset: assets/fonts/NotoSansBengali-500.ttf
+          weight: 500
+        - asset: assets/fonts/NotoSansBengali-600.ttf
+          weight: 600
+        - asset: assets/fonts/NotoSansBengali-700.ttf
+          weight: 700

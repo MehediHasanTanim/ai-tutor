@@ -42,3 +42,9 @@ apps/mobile/android/.gradle/
 
 # Local data volumes
 infra/docker/data/
+
+# Flutter generated code — reproduced by `dart run build_runner build`.
+# Kept out of the repo so model diffs show intent, not generated output.
+*.freezed.dart
+*.g.dart
+apps/mobile/.flutter-plugins*

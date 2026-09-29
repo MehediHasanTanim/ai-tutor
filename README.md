@@ -4,8 +4,10 @@ A curriculum-grounded AI tutor for Bangladeshi Class 9–10 Science students (NC
 Bangla-first. See [`docs/`](docs/) for the product, architecture and delivery plan; this README
 covers running the thing.
 
-**Status:** Weeks 1–2 of the 16-week plan — foundation. Auth, health, error contract and the
-module skeleton exist. Curriculum, RAG, tutor, quizzes and personalization do not yet.
+**Status:** Weeks 1–2 of the 16-week plan — foundation. The backend (auth, health, error
+contract, module skeleton) and the Flutter app (auth, routing, theming, networking) are both
+in place and talk to each other. Curriculum, RAG, tutor, quizzes and personalization do not
+exist yet.
 
 ---
 
@@ -16,7 +18,7 @@ module skeleton exist. Curriculum, RAG, tutor, quizzes and personalization do no
 | Node    | 22+                                                                 |
 | pnpm    | 9.15 (`corepack enable && corepack prepare pnpm@9.15.0 --activate`) |
 | Docker  | with Compose v2                                                     |
-| Flutter | 3.27+ (only once `apps/mobile` is scaffolded)                       |
+| Flutter | 3.27+ (3.47 verified)                                               |
 
 ## Quick start
 
@@ -39,6 +41,15 @@ Verify:
 curl http://localhost:4000/health/ready
 ```
 
+Then the app, in a second terminal:
+
+```bash
+cd apps/mobile && dart run build_runner build --delete-conflicting-outputs && flutter run
+```
+
+The Android emulator default (`10.0.2.2`) is baked in. For an iOS simulator or
+a desktop target, pass `--dart-define=API_BASE_URL=http://localhost:4000/api/v1`.
+
 ## Ports
 
 Every port is deliberately off the service default so this stack coexists with other local
@@ -57,9 +68,9 @@ projects. Full map in [`docs/architecture/08_Port_Allocation.md`](docs/architect
 
 ```text
 apps/
-  api/                NestJS backend — the only app that currently exists
+  api/                NestJS backend
+  mobile/             Flutter app — feature-first Clean Architecture
   admin/              Next.js admin panel        (Weeks 3–4)
-  mobile/             Flutter application        (Weeks 1–2, not yet scaffolded)
 packages/
   shared-types/       API contract types and shared enums — single source of truth
   prompts/            Versioned prompt templates (Weeks 1–2, pending provider decision)
@@ -80,7 +91,17 @@ pnpm db:seed            # idempotent baseline seed
 pnpm lint               # every workspace
 pnpm typecheck          # every workspace
 pnpm test               # unit tests
+pnpm check:contract     # fail if the Flutter client and the API contract disagree
 pnpm format             # prettier write
+```
+
+Mobile:
+
+```bash
+cd apps/mobile
+dart run build_runner build --delete-conflicting-outputs   # Freezed models
+flutter analyze --fatal-infos
+flutter test
 ```
 
 API-specific:
@@ -102,7 +123,8 @@ pnpm --filter @ai-tutor/api db:studio           # Prisma Studio on :4005
 - **Refresh rotation.** Each refresh consumes its token. Replaying a consumed token revokes the
   entire session chain and returns `TOKEN_REUSED`.
 - **Shared types are the contract.** An API change updates `packages/shared-types` and
-  `openapi.json` in the same PR. CI fails on a stale spec.
+  `openapi.json` in the same PR. CI fails on a stale spec, and `pnpm check:contract` fails if
+  the Dart models, enums or error codes have drifted from it.
 
 ## Known deviations from the docs
 

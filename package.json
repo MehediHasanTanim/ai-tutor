@@ -18,7 +18,8 @@
     "dev:api": "pnpm --filter @ai-tutor/api start:dev",
     "db:migrate": "pnpm --filter @ai-tutor/api db:migrate",
     "db:seed": "pnpm --filter @ai-tutor/api db:seed",
-    "prepare": "husky"
+    "prepare": "husky",
+    "check:contract": "node scripts/check-contract-drift.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
