@@ -1,0 +1,29 @@
+{
+  "note": "USD per million tokens. Every entry carries verifiedOn — a stale price silently invalidates the one number that decides whether the unit economics work (doc 07 §10). Re-check before quoting a cost in a decision.",
+  "models": {
+    "claude-opus-5-5": {
+      "inputPerMTok": 4.0,
+      "outputPerMTok": 20.0,
+      "cachedInputPerMTok": 0.2,
+      "verifiedOn": "2026-09-29"
+    },
+    "claude-sonnet-5-5": {
+      "inputPerMTok": 2.0,
+      "outputPerMTok": 10.0,
+      "cachedInputPerMTok": 0.2,
+      "verifiedOn": "2026-09-29"
+    },
+    "claude-haiku-4-5": {
+      "inputPerMTok": 1.0,
+      "outputPerMTok": 5.0,
+      "verifiedOn": "2026-09-29"
+    }
+  },
+  "projection": {
+    "note": "Inputs to the §10 guardrail. questionsPerDay should be replaced with the measured median once beta usage data exists — until then it is the free-tier daily cap from .env.example, which is a ceiling, not a median.",
+    "questionsPerDay": 10,
+    "usdToBdt": 120,
+    "premiumPriceBdt": 199,
+    "budgetShare": 0.4
+  }
+}

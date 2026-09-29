@@ -1,0 +1,230 @@
+{
+  "version": "0.1.0",
+  "targetSize": 60,
+  "note": "Doc 07 §6 requires 60 questions, 10 per subject, each with a known-correct reference answer and Bangla/English/Banglish phrasings. This file holds the authored seed. Every case carries `reviewed`, which must be true before its score is quoted in a decision — see README §Dataset status.",
+  "cases": [
+    {
+      "id": "phy-10-01",
+      "subject": "physics",
+      "classLevel": 10,
+      "chapter": "Motion",
+      "prompts": {
+        "bn": "গড় দ্রুতি এবং গড় বেগের মধ্যে পার্থক্য কী? একটি উদাহরণ দিয়ে বুঝিয়ে দাও।",
+        "en": "What is the difference between average speed and average velocity? Explain with an example.",
+        "banglish": "Average speed ar average velocity er moddhe parthokko ki? Ekta example diye bujhiye dao."
+      },
+      "reference": {
+        "answer": "Average speed is total distance travelled divided by total time; it is a scalar and is never negative. Average velocity is total displacement divided by total time; it is a vector with direction. For a body that returns to its starting point, displacement is zero so average velocity is zero, while average speed is not.",
+        "requiredFacts": ["distance", "displacement", "scalar", "vector"],
+        "expectedEnglishTerms": [
+          "average speed",
+          "average velocity",
+          "scalar",
+          "vector",
+          "displacement"
+        ],
+        "formulas": ["v_av = s / t", "v⃗_av = Δx⃗ / Δt"]
+      },
+      "reviewed": false
+    },
+    {
+      "id": "phy-10-02",
+      "subject": "physics",
+      "classLevel": 10,
+      "chapter": "Work, Power and Energy",
+      "prompts": {
+        "bn": "একটি ৫ কেজি ভরের বস্তুকে ১০ মিটার উঁচুতে তুলতে কত কাজ করতে হবে? (g = ৯.৮ m/s²)",
+        "en": "How much work is done in lifting a 5 kg object to a height of 10 m? (g = 9.8 m/s²)",
+        "banglish": "5 kg er ekta bostu ke 10 meter uchute tulte koto kaj korte hobe? (g = 9.8 m/s²)"
+      },
+      "reference": {
+        "answer": "Work done against gravity equals mgh = 5 × 9.8 × 10 = 490 J. This also equals the gain in gravitational potential energy.",
+        "requiredFacts": ["490", "mgh", "joule"],
+        "expectedEnglishTerms": ["work", "potential energy", "joule"],
+        "formulas": ["W = mgh"]
+      },
+      "reviewed": false
+    },
+    {
+      "id": "che-10-01",
+      "subject": "chemistry",
+      "classLevel": 10,
+      "chapter": "Chemical Bonds",
+      "prompts": {
+        "bn": "আয়নিক বন্ধন ও সমযোজী বন্ধনের মধ্যে পার্থক্য কী? প্রতিটির একটি করে উদাহরণ দাও।",
+        "en": "What is the difference between an ionic bond and a covalent bond? Give one example of each.",
+        "banglish": "Ionic bond ar covalent bond er moddhe parthokko ki? Protiti r ekta kore example dao."
+      },
+      "reference": {
+        "answer": "An ionic bond forms by transfer of electrons from a metal to a non-metal, producing oppositely charged ions held by electrostatic attraction — for example NaCl. A covalent bond forms by sharing of electron pairs between non-metals — for example H2O. Ionic compounds generally have higher melting points and conduct electricity when molten or dissolved; covalent compounds generally do not.",
+        "requiredFacts": ["transfer", "shar", "NaCl", "electron"],
+        "expectedEnglishTerms": ["ionic bond", "covalent bond", "electron", "ion"],
+        "formulas": []
+      },
+      "reviewed": false
+    },
+    {
+      "id": "che-09-01",
+      "subject": "chemistry",
+      "classLevel": 9,
+      "chapter": "Structure of Atom",
+      "prompts": {
+        "bn": "আইসোটোপ কাকে বলে? হাইড্রোজেনের আইসোটোপগুলোর নাম লেখ।",
+        "en": "What are isotopes? Name the isotopes of hydrogen.",
+        "banglish": "Isotope kake bole? Hydrogen er isotope gulor nam lekho."
+      },
+      "reference": {
+        "answer": "Isotopes are atoms of the same element that have the same number of protons but different numbers of neutrons, so they have the same atomic number and different mass numbers. Hydrogen has three: protium (1H), deuterium (2H) and tritium (3H).",
+        "requiredFacts": ["proton", "neutron", "protium", "deuterium", "tritium"],
+        "expectedEnglishTerms": ["isotope", "proton", "neutron", "atomic number", "mass number"],
+        "formulas": []
+      },
+      "reviewed": false
+    },
+    {
+      "id": "bio-09-01",
+      "subject": "biology",
+      "classLevel": 9,
+      "chapter": "Photosynthesis",
+      "prompts": {
+        "bn": "সালোকসংশ্লেষণ প্রক্রিয়াটি সমীকরণসহ ব্যাখ্যা করো। এটি কোথায় ঘটে?",
+        "en": "Explain the process of photosynthesis with its equation. Where does it take place?",
+        "banglish": "Photosynthesis prokriya ta somikoron soho bakkha koro. Eta kothay ghote?"
+      },
+      "reference": {
+        "answer": "Photosynthesis is the process by which green plants use light energy, absorbed by chlorophyll, to convert carbon dioxide and water into glucose and oxygen. It takes place in the chloroplasts, mainly in the mesophyll cells of the leaf. The overall equation is 6CO2 + 6H2O --light/chlorophyll--> C6H12O6 + 6O2.",
+        "requiredFacts": ["chlorophyll", "chloroplast", "carbon dioxide", "glucose", "oxygen"],
+        "expectedEnglishTerms": ["photosynthesis", "chlorophyll", "chloroplast", "glucose"],
+        "formulas": ["6CO2 + 6H2O → C6H12O6 + 6O2"]
+      },
+      "reviewed": false
+    },
+    {
+      "id": "bio-10-01",
+      "subject": "biology",
+      "classLevel": 10,
+      "chapter": "Heredity",
+      "prompts": {
+        "bn": "মেন্ডেলের পৃথকীকরণ সূত্রটি ব্যাখ্যা করো।",
+        "en": "Explain Mendel's law of segregation.",
+        "banglish": "Mendel er prithokikoron sutro ta bakkha koro."
+      },
+      "reference": {
+        "answer": "Mendel's law of segregation states that the two alleles of a gene separate from each other during gamete formation, so each gamete carries only one allele of the pair. At fertilisation the offspring receives one allele from each parent. This explains the 3:1 phenotypic ratio in the F2 generation of a monohybrid cross.",
+        "requiredFacts": ["allele", "gamete", "3:1", "segregat"],
+        "expectedEnglishTerms": ["allele", "gamete", "segregation", "monohybrid"],
+        "formulas": []
+      },
+      "reviewed": false
+    },
+    {
+      "id": "mat-10-01",
+      "subject": "math",
+      "classLevel": 10,
+      "chapter": "Quadratic Equations",
+      "prompts": {
+        "bn": "x² − 5x + 6 = 0 সমীকরণটি সমাধান করো।",
+        "en": "Solve the equation x² − 5x + 6 = 0.",
+        "banglish": "x² - 5x + 6 = 0 somikoron ta somadhan koro."
+      },
+      "reference": {
+        "answer": "Factorising: x² − 5x + 6 = (x − 2)(x − 3) = 0, so x = 2 or x = 3.",
+        "requiredFacts": ["x = 2", "x = 3"],
+        "expectedEnglishTerms": ["quadratic", "factor"],
+        "formulas": ["x = (-b ± √(b² - 4ac)) / 2a"]
+      },
+      "reviewed": false
+    },
+    {
+      "id": "mat-09-01",
+      "subject": "math",
+      "classLevel": 9,
+      "chapter": "Pythagoras Theorem",
+      "prompts": {
+        "bn": "একটি সমকোণী ত্রিভুজের দুইটি বাহু ৬ সেমি এবং ৮ সেমি হলে অতিভুজের দৈর্ঘ্য কত?",
+        "en": "If two sides of a right-angled triangle are 6 cm and 8 cm, what is the length of the hypotenuse?",
+        "banglish": "Ekta right-angled triangle er duita bahu 6 cm ar 8 cm hole hypotenuse er dorgho koto?"
+      },
+      "reference": {
+        "answer": "By Pythagoras' theorem, h² = 6² + 8² = 36 + 64 = 100, so h = 10 cm.",
+        "requiredFacts": ["10", "100"],
+        "expectedEnglishTerms": ["hypotenuse", "Pythagoras"],
+        "formulas": ["a² + b² = c²"]
+      },
+      "reviewed": false
+    },
+    {
+      "id": "ict-09-01",
+      "subject": "ict",
+      "classLevel": 9,
+      "chapter": "Number Systems",
+      "prompts": {
+        "bn": "দশমিক সংখ্যা ২৫ কে বাইনারিতে রূপান্তর করো এবং ধাপগুলো দেখাও।",
+        "en": "Convert the decimal number 25 to binary and show the steps.",
+        "banglish": "Decimal number 25 ke binary te convert koro ar steps gulo dekhao."
+      },
+      "reference": {
+        "answer": "Divide repeatedly by 2 and read the remainders upward: 25÷2=12 r1, 12÷2=6 r0, 6÷2=3 r0, 3÷2=1 r1, 1÷2=0 r1. Reading upward gives 11001. So 25 in decimal is 11001 in binary.",
+        "requiredFacts": ["11001"],
+        "expectedEnglishTerms": ["binary", "decimal", "remainder"],
+        "formulas": []
+      },
+      "reviewed": false
+    },
+    {
+      "id": "ict-10-01",
+      "subject": "ict",
+      "classLevel": 10,
+      "chapter": "Database Management",
+      "prompts": {
+        "bn": "ডেটাবেজে প্রাইমারি কী এবং ফরেন কী-এর মধ্যে পার্থক্য কী?",
+        "en": "What is the difference between a primary key and a foreign key in a database?",
+        "banglish": "Database e primary key ar foreign key er moddhe parthokko ki?"
+      },
+      "reference": {
+        "answer": "A primary key uniquely identifies each record in a table; it cannot be null and cannot repeat. A foreign key is a field in one table that refers to the primary key of another table, and it is what establishes the relationship between the two tables. A foreign key may be null and may repeat.",
+        "requiredFacts": ["unique", "null", "relation"],
+        "expectedEnglishTerms": ["primary key", "foreign key", "table", "record"],
+        "formulas": []
+      },
+      "reviewed": false
+    },
+    {
+      "id": "eng-10-01",
+      "subject": "english",
+      "classLevel": 10,
+      "chapter": "Tense",
+      "prompts": {
+        "bn": "Present perfect এবং past simple tense-এর মধ্যে পার্থক্য উদাহরণসহ বুঝিয়ে দাও।",
+        "en": "Explain the difference between the present perfect and the past simple tense, with examples.",
+        "banglish": "Present perfect ar past simple tense er moddhe parthokko example soho bujhiye dao."
+      },
+      "reference": {
+        "answer": "The past simple describes a finished action at a definite past time — 'I ate rice at 2 pm.' The present perfect describes an action whose time is unspecified or whose result matters now — 'I have eaten rice.' The present perfect is not used with a definite past time expression, so 'I have eaten rice at 2 pm' is incorrect.",
+        "requiredFacts": ["definite", "present perfect", "past simple"],
+        "expectedEnglishTerms": ["present perfect", "past simple", "tense"],
+        "formulas": []
+      },
+      "reviewed": false
+    },
+    {
+      "id": "oob-10-01",
+      "subject": "physics",
+      "classLevel": 10,
+      "chapter": "(outside syllabus)",
+      "outOfCurriculum": true,
+      "prompts": {
+        "bn": "কোয়ান্টাম ক্ষেত্র তত্ত্বে রেনরমালাইজেশন কীভাবে কাজ করে?",
+        "en": "How does renormalisation work in quantum field theory?",
+        "banglish": "Quantum field theory te renormalization kivabe kaj kore?"
+      },
+      "reference": {
+        "answer": "This topic is far outside the Class 9-10 NCTB syllabus. The correct behaviour is to say so plainly and offer the nearest in-syllabus topic, not to attempt an answer. Doc 07 Weeks 5-6 exit criteria: a question outside the curriculum must produce an honest 'not covered' response rather than a confident fabrication.",
+        "requiredFacts": [],
+        "expectedEnglishTerms": [],
+        "formulas": []
+      },
+      "reviewed": false
+    }
+  ]
+}

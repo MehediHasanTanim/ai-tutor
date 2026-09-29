@@ -1,0 +1,112 @@
+{
+  "version": "0.1.0",
+  "note": "Decides D-11. The hard negatives are the test: any model separates physics from poetry. The one that matters is Class 10 physics from Class 9 physics, and the same concept in Bangla from the same concept in English. A model that fails here makes the RAG layer retrieve plausible, wrong chapters — and re-embedding the corpus later is expensive.",
+  "chunks": [
+    {
+      "id": "c-phy10-motion-accel",
+      "subject": "physics",
+      "classLevel": 10,
+      "language": "bn",
+      "content": "ত্বরণ হলো বেগের পরিবর্তনের হার। যদি কোনো বস্তুর আদি বেগ u এবং t সময় পরে শেষ বেগ v হয়, তবে ত্বরণ a = (v − u) / t। ত্বরণের একক m/s²। বেগ বাড়লে ত্বরণ ধনাত্মক, কমলে ঋণাত্মক বা মন্দন।"
+    },
+    {
+      "id": "c-phy09-motion-speed",
+      "subject": "physics",
+      "classLevel": 9,
+      "language": "bn",
+      "content": "দ্রুতি হলো একক সময়ে অতিক্রান্ত দূরত্ব। দ্রুতি একটি স্কেলার রাশি, এর কেবল মান আছে, দিক নেই। গড় দ্রুতি = মোট দূরত্ব / মোট সময়। দ্রুতির একক m/s।"
+    },
+    {
+      "id": "c-phy10-force-newton2",
+      "subject": "physics",
+      "classLevel": 10,
+      "language": "bn",
+      "content": "নিউটনের দ্বিতীয় সূত্র অনুসারে বস্তুর ভরবেগের পরিবর্তনের হার প্রযুক্ত বলের সমানুপাতিক এবং বল যেদিকে ক্রিয়া করে ভরবেগের পরিবর্তনও সেদিকে ঘটে। F = ma।"
+    },
+    {
+      "id": "c-che10-bond-ionic",
+      "subject": "chemistry",
+      "classLevel": 10,
+      "language": "bn",
+      "content": "আয়নিক বন্ধন গঠিত হয় যখন একটি ধাতু পরমাণু ইলেকট্রন ত্যাগ করে এবং একটি অধাতু পরমাণু সেই ইলেকট্রন গ্রহণ করে। বিপরীত আধানযুক্ত আয়নগুলোর মধ্যে স্থির-বৈদ্যুতিক আকর্ষণই আয়নিক বন্ধন। যেমন NaCl।"
+    },
+    {
+      "id": "c-che10-bond-covalent",
+      "subject": "chemistry",
+      "classLevel": 10,
+      "language": "bn",
+      "content": "সমযোজী বন্ধন গঠিত হয় যখন দুটি পরমাণু ইলেকট্রন জোড় শেয়ার করে। সাধারণত দুটি অধাতুর মধ্যে সমযোজী বন্ধন হয়। যেমন H2O অণুতে অক্সিজেন ও হাইড্রোজেনের মধ্যে সমযোজী বন্ধন থাকে।"
+    },
+    {
+      "id": "c-bio09-photosynthesis",
+      "subject": "biology",
+      "classLevel": 9,
+      "language": "bn",
+      "content": "সালোকসংশ্লেষণ হলো সেই প্রক্রিয়া যার মাধ্যমে সবুজ উদ্ভিদ ক্লোরোফিলের সাহায্যে আলোক শক্তি ব্যবহার করে কার্বন ডাই-অক্সাইড ও পানি থেকে গ্লুকোজ ও অক্সিজেন তৈরি করে। এটি ক্লোরোপ্লাস্টে ঘটে।"
+    },
+    {
+      "id": "c-bio09-respiration",
+      "subject": "biology",
+      "classLevel": 9,
+      "language": "bn",
+      "content": "শ্বসন হলো সেই প্রক্রিয়া যার মাধ্যমে কোষ গ্লুকোজকে জারিত করে শক্তি মুক্ত করে। এতে অক্সিজেন ব্যবহৃত হয় এবং কার্বন ডাই-অক্সাইড ও পানি উৎপন্ন হয়। শ্বসন মাইটোকন্ড্রিয়ায় ঘটে।"
+    },
+    {
+      "id": "c-phy10-motion-accel-en",
+      "subject": "physics",
+      "classLevel": 10,
+      "language": "en",
+      "content": "Acceleration is the rate of change of velocity. If a body has initial velocity u and final velocity v after time t, then acceleration a = (v - u) / t. The unit of acceleration is m/s². Acceleration is positive when velocity increases and negative (retardation) when it decreases."
+    }
+  ],
+  "probes": [
+    {
+      "id": "p-01",
+      "query": "ত্বরণ কাকে বলে এবং এর একক কী?",
+      "queryLanguage": "bn",
+      "relevantChunkId": "c-phy10-motion-accel",
+      "hardNegativeChunkIds": ["c-phy09-motion-speed", "c-phy10-force-newton2"],
+      "note": "Class 9 speed is the adjacent-class trap; Newton's second law is the adjacent-topic trap."
+    },
+    {
+      "id": "p-02",
+      "query": "Toron kake bole ar er unit ki?",
+      "queryLanguage": "banglish",
+      "relevantChunkId": "c-phy10-motion-accel",
+      "hardNegativeChunkIds": ["c-phy09-motion-speed", "c-phy10-force-newton2"],
+      "note": "Same question in Banglish. A model that handles Bangla script but not Romanized Bangla fails here and nowhere else."
+    },
+    {
+      "id": "p-03",
+      "query": "What is acceleration and what is its unit?",
+      "queryLanguage": "en",
+      "relevantChunkId": "c-phy10-motion-accel-en",
+      "hardNegativeChunkIds": ["c-phy09-motion-speed", "c-phy10-motion-accel"],
+      "note": "Cross-language retrieval: an English query should prefer the English chunk when one exists."
+    },
+    {
+      "id": "p-04",
+      "query": "ইলেকট্রন শেয়ার করে কোন বন্ধন তৈরি হয়?",
+      "queryLanguage": "bn",
+      "relevantChunkId": "c-che10-bond-covalent",
+      "hardNegativeChunkIds": ["c-che10-bond-ionic"],
+      "note": "Ionic and covalent bonding share most of their vocabulary. Separating them is the minimum bar for a chemistry tutor."
+    },
+    {
+      "id": "p-05",
+      "query": "গাছ কীভাবে খাবার তৈরি করে?",
+      "queryLanguage": "bn",
+      "relevantChunkId": "c-bio09-photosynthesis",
+      "hardNegativeChunkIds": ["c-bio09-respiration"],
+      "note": "Colloquial phrasing, not textbook wording — how a student actually asks. Respiration is the trap: same organelle-level vocabulary, opposite process."
+    },
+    {
+      "id": "p-06",
+      "query": "Gach kivabe khabar toiri kore?",
+      "queryLanguage": "banglish",
+      "relevantChunkId": "c-bio09-photosynthesis",
+      "hardNegativeChunkIds": ["c-bio09-respiration"],
+      "note": "Colloquial Banglish — the hardest realistic input, and the most common one."
+    }
+  ]
+}
