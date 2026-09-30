@@ -35,9 +35,15 @@ importers:
 
   apps/api:
     dependencies:
+      '@ai-tutor/prompts':
+        specifier: workspace:*
+        version: link:../../packages/prompts
       '@ai-tutor/shared-types':
         specifier: workspace:*
         version: link:../../packages/shared-types
+      '@anthropic-ai/sdk':
+        specifier: ^0.129.0
+        version: 0.129.0(zod@3.25.76)
       '@nestjs/common':
         specifier: ^10.4.15
         version: 10.4.22(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -162,6 +168,9 @@ importers:
 
   packages/eval:
     dependencies:
+      '@ai-tutor/prompts':
+        specifier: workspace:*
+        version: link:../prompts
       '@ai-tutor/shared-types':
         specifier: workspace:*
         version: link:../shared-types
@@ -171,6 +180,22 @@ importers:
       zod:
         specifier: ^3.24.1
         version: 3.25.76
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.5
+        version: 22.20.4
+      tsx:
+        specifier: ^4.19.2
+        version: 4.23.15
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+
+  packages/prompts:
+    dependencies:
+      '@ai-tutor/shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
     devDependencies:
       '@types/node':
         specifier: ^22.10.5

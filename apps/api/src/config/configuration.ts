@@ -19,6 +19,18 @@ export interface AppConfig {
     accessTtl: string;
     refreshTtl: string;
   };
+  ai: {
+    /** Empty until D-09 is decided. */
+    provider: string;
+    apiKey?: string;
+    chatModel?: string;
+    fastModel?: string;
+    visionProvider?: string;
+    visionModel?: string;
+    embeddingProvider?: string;
+    embeddingModel?: string;
+    embeddingDimensions?: number;
+  };
   storage: {
     endpoint?: string;
     bucket?: string;
@@ -50,6 +62,17 @@ export function buildConfig(env: Env): AppConfig {
       refreshSecret: env.JWT_REFRESH_SECRET,
       accessTtl: env.JWT_ACCESS_TTL,
       refreshTtl: env.JWT_REFRESH_TTL,
+    },
+    ai: {
+      provider: env.LLM_PROVIDER,
+      apiKey: env.LLM_API_KEY,
+      chatModel: env.LLM_MODEL_CHAT,
+      fastModel: env.LLM_MODEL_FAST,
+      visionProvider: env.VISION_PROVIDER,
+      visionModel: env.VISION_MODEL,
+      embeddingProvider: env.EMBEDDING_PROVIDER,
+      embeddingModel: env.EMBEDDING_MODEL,
+      embeddingDimensions: env.EMBEDDING_DIMENSIONS,
     },
     storage: {
       endpoint: env.S3_ENDPOINT,

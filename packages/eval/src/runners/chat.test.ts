@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildSystemPrompt, scoreResponse } from './chat.js';
+import { buildTutorSystemPrompt } from '@ai-tutor/prompts';
+import { buildSystemPrompt, evaluationPromptVersion, scoreResponse } from './chat.js';
 import type { ChatTestCase } from '../types.js';
 
 const CASE: ChatTestCase = {
@@ -47,30 +48,49 @@ function dimension(scores: ReturnType<typeof scoreResponse>, name: string): numb
 }
 
 describe('buildSystemPrompt', () => {
-  it('tells the model to keep English terms', () => {
-    const prompt = buildSystemPrompt(CASE, 'bn');
-    assert.match(prompt, /keep scientific and technical terms in English/i);
+  // The prompt's own wording is tested in packages/prompts. What matters here
+  // is that the harness uses that prompt rather than a copy — a candidate
+  // measured under a different prompt than production sends is not measured.
+
+  it('delegates to the shared tutor prompt', () => {
+    const fromEval = buildSystemPrompt(CASE, 'bn');
+    const fromPrompts = buildTutorSystemPrompt({
+      classLevel: CASE.classLevel,
+      curriculum: 'nctb',
+      subject: CASE.subject,
+      chapter: CASE.chapter,
+      language: 'bn',
+      mode: 'normal',
+      retrieved: [],
+    }).system;
+
+    assert.equal(fromEval, fromPrompts);
   });
 
-  it('asks for Bangla output even when the question is Banglish', () => {
-    // Doc 02 §2: Banglish is an input convenience, not a request for
-    // Romanized output. Getting this wrong makes dimension 4 untestable.
-    const prompt = buildSystemPrompt(CASE, 'banglish');
-    assert.match(prompt, /answer in natural Bangla script/i);
+  it('carries the case into the prompt', () => {
+    const prompt = buildSystemPrompt(CASE, 'en');
+    assert.match(prompt, /Class 10/);
+    assert.match(prompt, /physics/i);
   });
 
-  it('carries the class level so retrieval can be scoped', () => {
-    assert.match(buildSystemPrompt(CASE, 'en'), /Class 10/);
+  it('varies with the language under test', () => {
+    // Dimension 4 depends on the Banglish prompt differing from the Bangla
+    // one; if they were identical the suite would measure nothing.
+    assert.notEqual(buildSystemPrompt(CASE, 'bn'), buildSystemPrompt(CASE, 'banglish'));
+    assert.notEqual(buildSystemPrompt(CASE, 'en'), buildSystemPrompt(CASE, 'bn'));
   });
 
-  it('instructs the model to decline out-of-syllabus questions', () => {
-    assert.match(buildSystemPrompt(CASE, 'en'), /outside the Class 9-10 NCTB syllabus/i);
+  it('reports the prompt version so results stay attributable', () => {
+    // Doc 07 §11: a prompt tweak can quietly degrade one subject. A score
+    // without its prompt version cannot be compared across runs.
+    assert.match(evaluationPromptVersion(), /^tutor\.system@\d+\.\d+$/);
+  });
+
+  it('sends no retrieved content — this suite measures the model, not RAG', () => {
+    assert.doesNotMatch(buildSystemPrompt(CASE, 'bn'), /## Curriculum excerpts/);
   });
 });
 
-// Fixtures are deliberately realistic in length and script mix. A short answer
-// padded with English terms falls below the 60% Bengali threshold and fails
-// script_match for reasons that say nothing about the code under test.
 describe('scoreResponse', () => {
   it('scores a good Bangla answer well across every dimension', () => {
     const scores = scoreResponse(

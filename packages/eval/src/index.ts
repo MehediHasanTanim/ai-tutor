@@ -3,6 +3,7 @@ export * from './providers/provider.js';
 export * from './providers/anthropic.js';
 export * from './providers/registry.js';
 export * from './datasets/loader.js';
+export * from './datasets/vision-loader.js';
 export * from './scorers/script.js';
 export * from './scorers/structure.js';
 export * from './scorers/terminology.js';

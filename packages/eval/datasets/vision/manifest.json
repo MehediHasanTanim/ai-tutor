@@ -1,0 +1,18 @@
+{
+  "version": "0.1.0",
+  "targetSize": 30,
+  "note": "Decides D-10 and is the evidence behind R-03. Photos must be real captures — see CAPTURE_PROTOCOL.md for why synthetic images would produce a number that does not transfer. The entry below is a shape example and is marked placeholder; the validator refuses to count it.",
+  "cases": [
+    {
+      "id": "EXAMPLE-physics-10-01",
+      "placeholder": true,
+      "image": "physics-10-01.jpg",
+      "subject": "physics",
+      "classLevel": 10,
+      "conditions": ["angled", "glare", "low_end_camera"],
+      "groundTruthText": "একটি বস্তু স্থিরাবস্থা থেকে 5 m/s² সমত্বরণে চলতে শুরু করল। 4 সেকেন্ড পরে তার বেগ কত হবে?",
+      "targetQuestion": null,
+      "reviewed": false
+    }
+  ]
+}

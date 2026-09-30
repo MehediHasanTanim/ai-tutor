@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "targetSize": 60,
   "note": "Doc 07 §6 requires 60 questions, 10 per subject, each with a known-correct reference answer and Bangla/English/Banglish phrasings. This file holds the authored seed. Every case carries `reviewed`, which must be true before its score is quoted in a decision — see README §Dataset status.",
   "cases": [
@@ -222,6 +222,246 @@
         "answer": "This topic is far outside the Class 9-10 NCTB syllabus. The correct behaviour is to say so plainly and offer the nearest in-syllabus topic, not to attempt an answer. Doc 07 Weeks 5-6 exit criteria: a question outside the curriculum must produce an honest 'not covered' response rather than a confident fabrication.",
         "requiredFacts": [],
         "expectedEnglishTerms": [],
+        "formulas": []
+      },
+      "reviewed": false
+    },
+    {
+      "id": "phy-09-01",
+      "subject": "physics",
+      "classLevel": 9,
+      "chapter": "Force and Motion",
+      "prompts": {
+        "bn": "নিউটনের প্রথম সূত্রটি বিবৃত করো এবং একটি দৈনন্দিন উদাহরণ দাও।",
+        "en": "State Newton's first law of motion and give an everyday example.",
+        "banglish": "Newton er prothom sutro ta bibrito koro ar ekta daily life example dao."
+      },
+      "reference": {
+        "answer": "Newton's first law states that a body at rest stays at rest, and a body in motion continues in uniform motion in a straight line, unless acted on by a net external force. This property is called inertia. Example: when a bus brakes suddenly, a standing passenger lurches forward because their body tends to keep moving.",
+        "requiredFacts": ["inertia", "net", "force", "rest"],
+        "expectedEnglishTerms": ["inertia", "force", "Newton"],
+        "formulas": []
+      },
+      "reviewed": false
+    },
+    {
+      "id": "phy-10-03",
+      "subject": "physics",
+      "classLevel": 10,
+      "chapter": "Refraction of Light",
+      "prompts": {
+        "bn": "প্রতিসরণাঙ্ক কাকে বলে? স্নেলের সূত্রটি লেখো।",
+        "en": "What is refractive index? State Snell's law.",
+        "banglish": "Protisoronangko kake bole? Snell er sutro ta lekho."
+      },
+      "reference": {
+        "answer": "The refractive index of a medium is the ratio of the speed of light in vacuum to the speed of light in that medium. Snell's law states that for light passing between two media, n1 sin(i) = n2 sin(r), where i is the angle of incidence and r the angle of refraction.",
+        "requiredFacts": ["speed of light", "angle of incidence", "refraction"],
+        "expectedEnglishTerms": ["refractive index", "Snell", "incidence", "refraction"],
+        "formulas": ["n1 sin i = n2 sin r"]
+      },
+      "reviewed": false
+    },
+    {
+      "id": "phy-09-02",
+      "subject": "physics",
+      "classLevel": 9,
+      "chapter": "Pressure",
+      "prompts": {
+        "bn": "চাপ কাকে বলে? এর একক কী এবং সূত্রটি লেখো।",
+        "en": "What is pressure? State its unit and formula.",
+        "banglish": "Chap kake bole? Er unit ki ar sutro ta lekho."
+      },
+      "reference": {
+        "answer": "Pressure is the force acting perpendicularly per unit area. P = F / A. Its SI unit is the pascal (Pa), where 1 Pa = 1 N/m².",
+        "requiredFacts": ["force", "area", "pascal"],
+        "expectedEnglishTerms": ["pressure", "pascal", "force", "area"],
+        "formulas": ["P = F / A"]
+      },
+      "reviewed": false
+    },
+    {
+      "id": "che-10-02",
+      "subject": "chemistry",
+      "classLevel": 10,
+      "chapter": "Acids, Bases and Salts",
+      "prompts": {
+        "bn": "pH স্কেল কী? অম্ল ও ক্ষারের pH মান কেমন হয়?",
+        "en": "What is the pH scale? What pH values do acids and bases have?",
+        "banglish": "pH scale ki? Omlo ar khar er pH man kemon hoy?"
+      },
+      "reference": {
+        "answer": "The pH scale measures how acidic or basic a solution is, running from 0 to 14. A pH below 7 is acidic, exactly 7 is neutral, and above 7 is basic (alkaline). pH is the negative logarithm of the hydrogen ion concentration.",
+        "requiredFacts": ["7", "acidic", "basic", "hydrogen ion"],
+        "expectedEnglishTerms": ["pH", "acid", "base", "neutral"],
+        "formulas": ["pH = -log[H+]"]
+      },
+      "reviewed": false
+    },
+    {
+      "id": "che-09-02",
+      "subject": "chemistry",
+      "classLevel": 9,
+      "chapter": "Periodic Table",
+      "prompts": {
+        "bn": "পর্যায় সারণিতে পর্যায় ও গ্রুপ বলতে কী বোঝায়?",
+        "en": "What do period and group mean in the periodic table?",
+        "banglish": "Periodic table e period ar group bolte ki bojhay?"
+      },
+      "reference": {
+        "answer": "A period is a horizontal row of the periodic table; elements in the same period have the same number of electron shells. A group is a vertical column; elements in the same group have the same number of valence electrons and therefore similar chemical properties.",
+        "requiredFacts": ["horizontal", "vertical", "valence", "shell"],
+        "expectedEnglishTerms": ["period", "group", "valence electron"],
+        "formulas": []
+      },
+      "reviewed": false
+    },
+    {
+      "id": "bio-09-02",
+      "subject": "biology",
+      "classLevel": 9,
+      "chapter": "Cell Division",
+      "prompts": {
+        "bn": "মাইটোসিস ও মিয়োসিসের মধ্যে প্রধান পার্থক্য কী?",
+        "en": "What are the main differences between mitosis and meiosis?",
+        "banglish": "Mitosis ar meiosis er moddhe prodhan parthokko ki?"
+      },
+      "reference": {
+        "answer": "Mitosis produces two genetically identical diploid daughter cells and is used for growth and repair. Meiosis produces four genetically different haploid cells and occurs in the formation of gametes. Mitosis involves one division; meiosis involves two.",
+        "requiredFacts": ["diploid", "haploid", "gamete", "identical"],
+        "expectedEnglishTerms": ["mitosis", "meiosis", "diploid", "haploid", "gamete"],
+        "formulas": []
+      },
+      "reviewed": false
+    },
+    {
+      "id": "bio-10-02",
+      "subject": "biology",
+      "classLevel": 10,
+      "chapter": "Circulatory System",
+      "prompts": {
+        "bn": "ধমনী ও শিরার মধ্যে পার্থক্য লেখো।",
+        "en": "Write the differences between arteries and veins.",
+        "banglish": "Dhomoni ar shira r moddhe parthokko lekho."
+      },
+      "reference": {
+        "answer": "Arteries carry blood away from the heart, have thick muscular walls, carry blood at high pressure, and have no valves (except at the heart). Veins carry blood towards the heart, have thinner walls, carry blood at low pressure, and contain valves to prevent backflow.",
+        "requiredFacts": ["away from the heart", "towards the heart", "valve", "pressure"],
+        "expectedEnglishTerms": ["artery", "vein", "valve"],
+        "formulas": []
+      },
+      "reviewed": false
+    },
+    {
+      "id": "mat-10-02",
+      "subject": "math",
+      "classLevel": 10,
+      "chapter": "Trigonometry",
+      "prompts": {
+        "bn": "sin²θ + cos²θ = 1 অভেদটি প্রমাণ করো।",
+        "en": "Prove the identity sin²θ + cos²θ = 1.",
+        "banglish": "sin²θ + cos²θ = 1 obhed ta proman koro."
+      },
+      "reference": {
+        "answer": "In a right-angled triangle with hypotenuse h, opposite side o and adjacent side a: sin θ = o/h and cos θ = a/h. So sin²θ + cos²θ = (o² + a²)/h². By Pythagoras' theorem o² + a² = h², so the expression equals h²/h² = 1.",
+        "requiredFacts": ["Pythagoras", "hypotenuse"],
+        "expectedEnglishTerms": ["hypotenuse", "Pythagoras"],
+        "formulas": ["sin²θ + cos²θ = 1", "a² + b² = c²"]
+      },
+      "reviewed": false
+    },
+    {
+      "id": "mat-09-02",
+      "subject": "math",
+      "classLevel": 9,
+      "chapter": "Sets",
+      "prompts": {
+        "bn": "A = {1,2,3,4} এবং B = {3,4,5,6} হলে A ∪ B এবং A ∩ B নির্ণয় করো।",
+        "en": "If A = {1,2,3,4} and B = {3,4,5,6}, find A ∪ B and A ∩ B.",
+        "banglish": "A = {1,2,3,4} ar B = {3,4,5,6} hole A ∪ B ar A ∩ B nirnoy koro."
+      },
+      "reference": {
+        "answer": "A ∪ B is the set of all elements in either set: {1,2,3,4,5,6}. A ∩ B is the set of elements in both: {3,4}.",
+        "requiredFacts": ["1,2,3,4,5,6", "3,4"],
+        "expectedEnglishTerms": ["union", "intersection", "set"],
+        "formulas": []
+      },
+      "reviewed": false
+    },
+    {
+      "id": "ict-10-02",
+      "subject": "ict",
+      "classLevel": 10,
+      "chapter": "Networking",
+      "prompts": {
+        "bn": "LAN, MAN এবং WAN-এর মধ্যে পার্থক্য কী?",
+        "en": "What is the difference between LAN, MAN and WAN?",
+        "banglish": "LAN, MAN ar WAN er moddhe parthokko ki?"
+      },
+      "reference": {
+        "answer": "A LAN (Local Area Network) covers a small area such as one building. A MAN (Metropolitan Area Network) covers a city. A WAN (Wide Area Network) covers a country or the world; the Internet is the largest WAN. Coverage area increases and typical data rate decreases from LAN to WAN.",
+        "requiredFacts": ["building", "city", "Internet"],
+        "expectedEnglishTerms": ["LAN", "MAN", "WAN", "network"],
+        "formulas": []
+      },
+      "reviewed": false
+    },
+    {
+      "id": "ict-09-02",
+      "subject": "ict",
+      "classLevel": 9,
+      "chapter": "Logic Gates",
+      "prompts": {
+        "bn": "AND গেট এবং OR গেটের ট্রুথ টেবিল লেখো।",
+        "en": "Write the truth tables for the AND gate and the OR gate.",
+        "banglish": "AND gate ar OR gate er truth table lekho."
+      },
+      "reference": {
+        "answer": "AND gate output is 1 only when both inputs are 1: (0,0)=0, (0,1)=0, (1,0)=0, (1,1)=1. OR gate output is 1 when at least one input is 1: (0,0)=0, (0,1)=1, (1,0)=1, (1,1)=1.",
+        "requiredFacts": ["both", "at least one"],
+        "expectedEnglishTerms": ["AND", "OR", "truth table", "gate"],
+        "formulas": []
+      },
+      "reviewed": false
+    },
+    {
+      "id": "eng-09-01",
+      "subject": "english",
+      "classLevel": 9,
+      "chapter": "Voice",
+      "prompts": {
+        "bn": "Active voice থেকে passive voice-এ রূপান্তরের নিয়ম উদাহরণসহ লেখো।",
+        "en": "Explain the rule for changing active voice to passive voice, with an example.",
+        "banglish": "Active voice theke passive voice e rupantorer niyom example soho lekho."
+      },
+      "reference": {
+        "answer": "To change active to passive: the object of the active sentence becomes the subject of the passive, the verb becomes a form of 'be' plus the past participle, and the original subject follows 'by'. Active: 'Rahim writes a letter.' Passive: 'A letter is written by Rahim.'",
+        "requiredFacts": ["object", "subject", "past participle", "by"],
+        "expectedEnglishTerms": [
+          "active voice",
+          "passive voice",
+          "past participle",
+          "subject",
+          "object"
+        ],
+        "formulas": []
+      },
+      "reviewed": false
+    },
+    {
+      "id": "eng-10-02",
+      "subject": "english",
+      "classLevel": 10,
+      "chapter": "Parts of Speech",
+      "prompts": {
+        "bn": "Preposition কী? বাক্যে এর ব্যবহার উদাহরণসহ বুঝিয়ে দাও।",
+        "en": "What is a preposition? Explain its use in a sentence with examples.",
+        "banglish": "Preposition ki? Bakke er babohar example soho bujhiye dao."
+      },
+      "reference": {
+        "answer": "A preposition is a word placed before a noun or pronoun to show its relation to another word in the sentence — relations of place, time or direction. Examples: 'The book is on the table' (place), 'He came at five o'clock' (time), 'She walked to school' (direction).",
+        "requiredFacts": ["noun", "relation", "place", "time"],
+        "expectedEnglishTerms": ["preposition", "noun", "pronoun"],
         "formulas": []
       },
       "reviewed": false

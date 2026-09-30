@@ -8,6 +8,7 @@
  */
 
 import type { Language } from '@ai-tutor/shared-types';
+import { buildTutorSystemPrompt, buildTutorUserMessage } from '@ai-tutor/prompts';
 import { estimateCostUsd } from '../metrics/cost.js';
 import { summarizeLatency } from '../metrics/stats.js';
 import { scoreScriptMatch } from '../scorers/script.js';
@@ -19,47 +20,36 @@ import type { CandidateSummary, CaseResult, ChatTestCase, DimensionScore } from 
 const LANGUAGES: Language[] = ['bn', 'en', 'banglish'];
 
 /**
- * The tutor system prompt used for evaluation.
+ * Builds the evaluation prompt from `packages/prompts`.
  *
- * Deliberately close to what production will send (architecture §7), because
- * a candidate measured under a different prompt than it will run under is not
- * measured. Kept here rather than in `packages/prompts` only until that
- * package exists — at which point this should import from it.
+ * Importing the real prompt rather than a copy is the whole point: a
+ * candidate measured under a different prompt than production sends is not
+ * measured. When the tutor prompt is revised, the eval automatically scores
+ * the revision, and `promptVersion` records which one produced each number.
  */
 export function buildSystemPrompt(testCase: ChatTestCase, language: Language): string {
-  return [
-    'You are a tutor for Bangladeshi students following the NCTB national curriculum.',
-    `The student is in Class ${testCase.classLevel} and is asking about ${testCase.subject}.`,
-    '',
-    languageInstruction(language),
-    '',
-    'Keep scientific and technical terms in English, the way they appear in the',
-    "student's textbook. Do not translate them into Bangla.",
-    '',
-    'If the question falls outside the Class 9-10 NCTB syllabus, say so plainly and',
-    'suggest the nearest topic that is covered. Do not attempt an answer.',
-    '',
-    'Respond with a single JSON object and nothing else:',
-    '{"type":"explanation"|"solution"|"hint"|"refusal","language":"bn"|"en"|"banglish",',
-    '"answer":string,"key_points":string[],"formulas":string[],"examples":string[],',
-    '"follow_up_actions":("simplify"|"give_example"|"quiz_me"|"show_formula")[]}',
-  ].join('\n');
+  return buildTutorSystemPrompt({
+    classLevel: testCase.classLevel,
+    curriculum: 'nctb',
+    subject: testCase.subject,
+    chapter: testCase.chapter,
+    language,
+    mode: 'normal',
+    // No retrieval in the chat suite — this measures the model, not the RAG
+    // layer. Retrieval quality is the separate embedding suite (D-11).
+    retrieved: [],
+  }).system;
 }
 
-function languageInstruction(language: Language): string {
-  switch (language) {
-    case 'bn':
-      return 'Answer in natural Bangla, as a Bangladeshi teacher would speak it.';
-    case 'en':
-      return 'Answer in English.';
-    case 'banglish':
-      // The instruction that makes dimension 4 a real test: Banglish in,
-      // Bangla out. Doc 02 §2 treats Romanized input as a typing convenience.
-      return [
-        'The student has typed their question in Banglish (Bangla written with English',
-        'letters). Understand it as Bangla and answer in natural Bangla script.',
-      ].join(' ');
-  }
+/** The prompt version behind a run, for the report. */
+export function evaluationPromptVersion(): string {
+  return buildTutorSystemPrompt({
+    classLevel: 10,
+    curriculum: 'nctb',
+    language: 'bn',
+    mode: 'normal',
+    retrieved: [],
+  }).promptVersion;
 }
 
 export interface ChatRunOptions {
@@ -121,7 +111,7 @@ async function runOne(
   try {
     response = await candidate.chat({
       systemPrompt: buildSystemPrompt(testCase, language),
-      userPrompt: testCase.prompts[language],
+      userPrompt: buildTutorUserMessage(testCase.prompts[language]).content,
       targetLanguage: language,
       requireStructuredOutput: true,
     });

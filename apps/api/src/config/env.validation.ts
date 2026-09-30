@@ -1,6 +1,17 @@
 import { z } from 'zod';
 
 /**
+ * Treats an empty env var as absent.
+ *
+ * `.env.example` ships every undecided AI setting as `KEY=`, which dotenv
+ * loads as `''` — present, so `.optional()` does not apply, and
+ * `z.coerce.number()` turns it into 0. Without this, a fresh clone fails to
+ * boot on `EMBEDDING_DIMENSIONS: Number must be greater than 0`.
+ */
+const emptyAsUndefined = <T extends z.ZodTypeAny>(schema: T) =>
+  z.preprocess((value) => (value === '' ? undefined : value), schema);
+
+/**
  * Environment contract. The process refuses to boot on a violation — a missing
  * JWT secret should fail at startup, not at the first login attempt.
  *
@@ -22,10 +33,23 @@ export const envSchema = z.object({
   JWT_ACCESS_TTL: z.string().default('15m'),
   JWT_REFRESH_TTL: z.string().default('30d'),
 
-  S3_ENDPOINT: z.string().optional(),
-  S3_BUCKET: z.string().optional(),
-  S3_ACCESS_KEY: z.string().optional(),
-  S3_SECRET_KEY: z.string().optional(),
+  // AI providers. Optional: D-09/D-10/D-11 are open, and the API must boot
+  // without them so every non-AI endpoint stays developable. The ai module
+  // fails loudly at call time rather than at startup.
+  LLM_PROVIDER: z.enum(['anthropic', '']).default(''),
+  LLM_API_KEY: emptyAsUndefined(z.string().optional()),
+  LLM_MODEL_CHAT: emptyAsUndefined(z.string().optional()),
+  LLM_MODEL_FAST: emptyAsUndefined(z.string().optional()),
+  VISION_PROVIDER: emptyAsUndefined(z.string().optional()),
+  VISION_MODEL: emptyAsUndefined(z.string().optional()),
+  EMBEDDING_PROVIDER: emptyAsUndefined(z.string().optional()),
+  EMBEDDING_MODEL: emptyAsUndefined(z.string().optional()),
+  EMBEDDING_DIMENSIONS: emptyAsUndefined(z.coerce.number().int().positive().optional()),
+
+  S3_ENDPOINT: emptyAsUndefined(z.string().optional()),
+  S3_BUCKET: emptyAsUndefined(z.string().optional()),
+  S3_ACCESS_KEY: emptyAsUndefined(z.string().optional()),
+  S3_SECRET_KEY: emptyAsUndefined(z.string().optional()),
   S3_REGION: z.string().default('us-east-1'),
 
   FREE_DAILY_QUESTIONS: z.coerce.number().int().nonnegative().default(10),
@@ -37,7 +61,7 @@ export const envSchema = z.object({
   THROTTLE_TTL_SECONDS: z.coerce.number().int().positive().default(60),
   THROTTLE_LIMIT: z.coerce.number().int().positive().default(120),
 
-  SENTRY_DSN: z.string().optional(),
+  SENTRY_DSN: emptyAsUndefined(z.string().optional()),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
 });
 

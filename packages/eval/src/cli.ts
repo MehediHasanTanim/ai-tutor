@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
 
 import { loadChatDataset, loadEmbeddingDataset } from './datasets/loader.js';
+import { loadVisionDataset } from './datasets/vision-loader.js';
 import { buildCandidates } from './providers/registry.js';
 import { runChatSuite } from './runners/chat.js';
 import { buildReviewSheet, renderSheetMarkdown } from './review/sheet.js';
@@ -96,6 +97,16 @@ function validate(): void {
     `embedding: ${embeddingData.probes.length} probes over ${embeddingData.chunks.length} chunks`,
   );
   for (const warning of embeddingData.warnings) {
+    console.warn(`  ! ${warning}`);
+    problems += 1;
+  }
+
+  const visionData = loadVisionDataset();
+  console.log(
+    `vision: ${visionData.cases.length} photos (target ${visionData.targetSize})` +
+      `${visionData.usable ? '' : ' — not yet usable for D-10'}`,
+  );
+  for (const warning of visionData.warnings) {
     console.warn(`  ! ${warning}`);
     problems += 1;
   }
