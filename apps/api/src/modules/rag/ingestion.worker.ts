@@ -7,7 +7,8 @@ import configuration from '../../config/configuration';
 import { PrismaService } from '../../infra/prisma/prisma.service';
 import { StorageService } from '../files/storage.service';
 import { AI_PROVIDER, type AIProvider } from '../ai/ai-provider.interface';
-import { chunkBlocks, normalizeExtractedText, toBlocks, type Chunk } from './chunking';
+import { chunkBlocks, type Chunk, type TextBlock } from './chunking';
+import { ExtractionService } from './extraction/extraction.service';
 import { INGESTION_QUEUE, type IngestionJob } from './ingestion.queue';
 import { EMBEDDING_DIMENSIONS } from './embedding.constants';
 
@@ -35,6 +36,7 @@ export class IngestionWorker implements OnModuleInit, OnModuleDestroy {
     private readonly config: ConfigType<typeof configuration>,
     private readonly prisma: PrismaService,
     private readonly storage: StorageService,
+    private readonly extraction: ExtractionService,
     @Inject(AI_PROVIDER) private readonly ai: AIProvider,
   ) {
     this.connection = new IORedis(config.redis.url, { maxRetriesPerRequest: null });
@@ -76,22 +78,58 @@ export class IngestionWorker implements OnModuleInit, OnModuleDestroy {
     try {
       await this.setStatus(document.id, DocumentStatus.EXTRACTING);
       const file = await this.storage.download(document.storageKey);
-      const rawText = await this.extractText(file, document.mimeType);
+      const extracted = await this.extraction.extract(file, document.mimeType);
 
-      if (rawText.trim().length === 0) {
-        // The R-02 case: a scanned PDF with no text layer extracts to
-        // nothing. Failing loudly here is the point — silently ingesting an
-        // empty document would leave a "READY" textbook that retrieves
-        // nothing and nobody would know why.
+      if (extracted.pages.every((page) => page.text.trim().length === 0)) {
+        // The R-02 case. Failing loudly is the point: a silently empty
+        // document would sit at READY and retrieve nothing, and nobody
+        // would know why the tutor had stopped citing that chapter.
         throw new Error(
-          'Extraction produced no text. If this is a scanned PDF it needs an OCR ' +
-            'pass before ingestion (doc 07 R-02).',
+          extracted.unreadablePages.length > 0
+            ? `Every page lacks a text layer (${extracted.unreadablePages.length} pages). ` +
+                'This is a scanned PDF and needs OCR before ingestion (doc 07 R-02).'
+            : 'Extraction produced no text.',
+        );
+      }
+
+      // Conjunct corruption makes text that renders as something and means
+      // nothing. Refusing it here is cheaper than a student reading it.
+      if (!extracted.quality.usable) {
+        throw new Error(
+          'Extracted Bangla failed the quality check — ' +
+            `${extracted.quality.orphanedMarks} orphaned marks, ` +
+            `${extracted.quality.danglingViramas} dangling viramas, ` +
+            `${extracted.quality.replacementChars} replacement characters. ` +
+            'The extractor mangled the conjuncts (doc 07 R-02); do not ingest this.',
+        );
+      }
+
+      // Ingests, but records why a native reader should look. Doc 07's
+      // Weeks 3–4 exit criteria require that spot-check; this makes the
+      // documents that most need it findable in the admin panel.
+      if (extracted.quality.suspicious) {
+        this.logger.warn(
+          `"${document.title}" extracted with warnings: ${extracted.quality.warnings.join(' ')}`,
         );
       }
 
       await this.setStatus(document.id, DocumentStatus.CHUNKING);
-      const normalized = normalizeExtractedText(rawText);
-      const chunks = chunkBlocks(toBlocks(normalized));
+
+      // Pages carry their number and section forward, so a chunk can be
+      // traced to a physical page in the admin inspector.
+      const blocks: TextBlock[] = extracted.pages.flatMap((page) =>
+        page.text
+          .split(/\n{2,}/u)
+          .map((paragraph) => paragraph.trim())
+          .filter(Boolean)
+          .map((paragraph) => ({
+            text: paragraph,
+            pageNumber: page.pageNumber,
+            section: page.section,
+          })),
+      );
+
+      const chunks = chunkBlocks(blocks);
 
       if (chunks.length === 0) {
         throw new Error('Chunking produced no chunks from non-empty text');
@@ -106,8 +144,9 @@ export class IngestionWorker implements OnModuleInit, OnModuleDestroy {
         where: { id: document.id },
         data: {
           status: DocumentStatus.READY,
-          statusDetail: null,
+          statusDetail: buildStatusDetail(extracted),
           chunkCount: chunks.length,
+          pageCount: extracted.pageCount,
           processedAt: new Date(),
         },
       });
@@ -118,34 +157,6 @@ export class IngestionWorker implements OnModuleInit, OnModuleDestroy {
       await this.markFailed(document.id, message);
       throw error;
     }
-  }
-
-  /**
-   * Text extraction.
-   *
-   * Doc 07 Weeks 3–4: "Bangla PDF text extraction is the hard part. Budget
-   * real time for it. Expect to need OCR fallback for scanned or image-based
-   * pages." R-02 rates conjunct corruption as high impact and high likelihood.
-   *
-   * Plain text works today. PDF needs a library chosen against real NCTB
-   * files — testing extractors on English PDFs proves nothing about Bangla
-   * conjuncts, and picking one before D-08 settles the content format would
-   * be guessing.
-   */
-  private async extractText(file: Buffer, mimeType: string): Promise<string> {
-    if (mimeType === 'text/plain' || mimeType === 'text/markdown') {
-      return file.toString('utf8');
-    }
-
-    if (mimeType === 'application/pdf') {
-      throw new Error(
-        'PDF extraction is not implemented. It is blocked on D-08 (content source ' +
-          'and format) — the extractor must be chosen by testing against real NCTB ' +
-          'files for conjunct corruption, per doc 07 R-02.',
-      );
-    }
-
-    throw new Error(`No extractor for "${mimeType}"`);
   }
 
   private async embedChunks(chunks: Chunk[]): Promise<number[][]> {
@@ -258,4 +269,33 @@ export function detectLanguage(text: string): ContentLanguage {
   const bengali = (text.match(/[ঀ-৿]/gu) ?? []).length;
   const latin = (text.match(/[A-Za-z]/gu) ?? []).length;
   return bengali >= latin ? ContentLanguage.BN : ContentLanguage.EN;
+}
+
+/**
+ * Everything an admin should know about a document that ingested anyway.
+ *
+ * Kept as a note on a READY document rather than a failure, because both
+ * conditions produce a usable corpus — just one that needs a human to
+ * confirm it says what the page says.
+ */
+function buildStatusDetail(extracted: {
+  unreadablePages: number[];
+  quality: { suspicious: boolean; warnings: string[] };
+}): string | null {
+  const notes: string[] = [];
+
+  if (extracted.unreadablePages.length > 0) {
+    notes.push(
+      `${extracted.unreadablePages.length} page(s) had no text layer and were skipped: ` +
+        extracted.unreadablePages.slice(0, 20).join(', '),
+    );
+  }
+
+  if (extracted.quality.suspicious) {
+    notes.push(
+      `Extraction warnings — needs a native reader: ${extracted.quality.warnings.join(' ')}`,
+    );
+  }
+
+  return notes.length > 0 ? notes.join(' | ') : null;
 }
