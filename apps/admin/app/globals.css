@@ -1,0 +1,340 @@
+/*
+ * Deliberately no component library. This panel has five screens and a
+ * dependency-free stylesheet keeps the build fast and the markup readable —
+ * which matters because the chunk inspector's job is to show text accurately,
+ * not attractively.
+ */
+
+:root {
+  --bg: #fbfbfa;
+  --surface: #ffffff;
+  --border: #e3e2df;
+  --text: #1f2421;
+  --muted: #6b7280;
+  --primary: #00695c;
+  --primary-soft: #e0f0ed;
+  --danger: #c62828;
+  --warn: #ef6c00;
+  --ok: #2e7d32;
+  --radius: 8px;
+  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17191a;
+    --surface: #1f2223;
+    --border: #33383a;
+    --text: #e8e6e3;
+    --muted: #9aa0a6;
+    --primary: #4db6ac;
+    --primary-soft: #1b3330;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font:
+    15px/1.55 system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+}
+
+/*
+ * Bengali needs an explicit family and a taller line height — the system
+ * stack alone clips conjunct descenders, and this panel displays extracted
+ * Bangla whose rendering is the thing being judged.
+ */
+.bangla,
+.chunk-text {
+  font-family: 'Noto Sans Bengali', 'Bangla MN', 'Kohinoor Bangla', system-ui, sans-serif;
+  line-height: 1.85;
+}
+
+a {
+  color: var(--primary);
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 210px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar h1 {
+  font-size: 15px;
+  margin: 0 0 18px 6px;
+}
+.sidebar h1 small {
+  display: block;
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.nav-link {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 6px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+}
+.nav-link:hover {
+  background: var(--primary-soft);
+}
+.nav-link[aria-current='page'] {
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.main {
+  flex: 1;
+  padding: 28px 32px;
+  max-width: 1100px;
+}
+.main > header {
+  margin-bottom: 22px;
+}
+.main h2 {
+  margin: 0 0 4px;
+  font-size: 22px;
+}
+.main header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+th,
+td {
+  text-align: left;
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+th {
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.badge-ok {
+  background: #e6f4ea;
+  color: var(--ok);
+}
+.badge-warn {
+  background: #fff4e5;
+  color: var(--warn);
+}
+.badge-err {
+  background: #fdecea;
+  color: var(--danger);
+}
+.badge-idle {
+  background: var(--border);
+  color: var(--muted);
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+input:focus,
+select:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: -1px;
+}
+
+.field {
+  margin-bottom: 14px;
+}
+.row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.row > * {
+  flex: 1;
+  min-width: 180px;
+}
+
+button {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 6px;
+  background: var(--primary);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+button:hover {
+  filter: brightness(1.08);
+}
+button[disabled] {
+  opacity: 0.55;
+  cursor: default;
+}
+button.secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.alert {
+  padding: 11px 14px;
+  border-radius: 6px;
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+.alert-error {
+  background: #fdecea;
+  color: var(--danger);
+}
+.alert-ok {
+  background: #e6f4ea;
+  color: var(--ok);
+}
+.alert-warn {
+  background: #fff4e5;
+  color: var(--warn);
+}
+
+.mono {
+  font-family: var(--mono);
+  font-size: 12.5px;
+}
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 13px;
+}
+
+.chunk {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  background: var(--surface);
+}
+.chunk-head {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.chunk-text {
+  padding: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.stat .n {
+  font-size: 26px;
+  font-weight: 700;
+}
+.stat .k {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+}
+
+.login-shell {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+.login-card {
+  width: 100%;
+  max-width: 380px;
+}
+
+.score-bar {
+  display: inline-block;
+  height: 6px;
+  background: var(--primary);
+  border-radius: 3px;
+  vertical-align: middle;
+}

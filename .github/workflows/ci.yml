@@ -91,6 +91,32 @@ jobs:
       - name: Check Flutter client matches the API contract
         run: pnpm check:contract
 
+  admin:
+    name: Admin — typecheck, build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/admin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        working-directory: .
+      - name: Build shared-types
+        run: pnpm --filter @ai-tutor/shared-types build
+        working-directory: .
+      - run: pnpm typecheck
+      - run: pnpm build
+        env:
+          # Build-time only; the panel reads this at request time in production.
+          API_BASE_URL: http://localhost:4000/api/v1
+
   format:
     name: Formatting
     runs-on: ubuntu-latest

@@ -1,0 +1,25 @@
+{
+  "name": "@ai-tutor/admin",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port ${ADMIN_PORT:-4001}",
+    "build": "next build",
+    "start": "next start --port ${ADMIN_PORT:-4001}",
+    "lint": "eslint app lib components",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"no tests yet\" && exit 0"
+  },
+  "dependencies": {
+    "@ai-tutor/shared-types": "workspace:*",
+    "next": "^16.3.7",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "typescript": "^5.7.2"
+  }
+}

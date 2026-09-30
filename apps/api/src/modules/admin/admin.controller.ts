@@ -23,6 +23,7 @@ import type {
 } from '@ai-tutor/shared-types';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { DOCUMENT_LIMITS } from '../files/file-validation';
+import { RetrievalLog, type RetrievalLogEntry } from '../rag/retrieval/retrieval.log';
 import { AdminService } from './admin.service';
 import { UploadDocumentDto } from './dto/upload-document.dto';
 
@@ -34,6 +35,21 @@ class DocumentListQueryDto {
   @IsOptional()
   @IsUUID('4')
   subject_id?: string;
+}
+
+class RetrievalLogQueryDto {
+  /** From the `request_id` in an error envelope or a student's report. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  request_id?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(200)
+  limit?: number;
 }
 
 class ChunkQueryDto {
@@ -64,7 +80,10 @@ class ChunkQueryDto {
 @Roles(UserRole.ADMIN)
 @Controller('admin')
 export class AdminController {
-  constructor(private readonly admin: AdminService) {}
+  constructor(
+    private readonly admin: AdminService,
+    private readonly retrievalLog: RetrievalLog,
+  ) {}
 
   @Post('documents')
   @UseInterceptors(
@@ -121,6 +140,22 @@ export class AdminController {
   @ApiOperation({ summary: 'Corpus and queue health' })
   status(): Promise<KnowledgeBaseStatus> {
     return this.admin.knowledgeBaseStatus();
+  }
+
+  @Get('retrieval-log')
+  @ApiOperation({
+    summary: 'Recent retrievals with their chunk ids and scores',
+    description:
+      'The other half of diagnosing a bad answer: the inspector shows what a ' +
+      'chunk says, this shows which chunks a given request actually used and ' +
+      'how they scored.',
+  })
+  retrievalLogEntries(@Query() query: RetrievalLogQueryDto): RetrievalLogEntry[] {
+    if (query.request_id) {
+      const entry = this.retrievalLog.findByRequestId(query.request_id);
+      return entry ? [entry] : [];
+    }
+    return this.retrievalLog.list(query.limit ?? 50);
   }
 
   @Get('knowledge-base/chunks')
