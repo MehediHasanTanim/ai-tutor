@@ -5,14 +5,16 @@
  * Class 9 and 10, which is the minimum needed for academic setup to work, plus
  * a development admin and student account.
  *
- * The full chapter/topic tree is Weeks 3–4 work (doc 07) and is deliberately
- * not invented here — placeholder chapters would make the RAG milestone look
- * satisfied when it is not.
+ * Weeks 3–4 adds the chapter and topic tree for all six subjects, seeded
+ * against both class levels (the NCTB Science syllabus is combined for
+ * Class 9–10). The tree lives in `curriculum-tree.ts`; it still needs
+ * subject-matter review before being treated as authoritative.
  */
 import '../src/load-env';
 
-import { PrismaClient, UserRole } from '@prisma/client';
+import { Difficulty, PrismaClient, UserRole } from '@prisma/client';
 import * as argon2 from 'argon2';
+import { CURRICULUM_TREE } from './curriculum-tree';
 
 const prisma = new PrismaClient();
 
@@ -85,6 +87,72 @@ async function seedCurriculum() {
   return curriculum;
 }
 
+/**
+ * Seeds chapters and topics for every subject.
+ *
+ * Idempotent by (subject, chapterNumber) and (chapter, title): re-running
+ * updates titles rather than appending a second copy of the syllabus.
+ */
+async function seedCurriculumTree(curriculumId: string) {
+  let chapters = 0;
+  let topics = 0;
+
+  for (const classLevel of CLASS_LEVELS) {
+    for (const [subjectCode, chapterSeeds] of Object.entries(CURRICULUM_TREE)) {
+      const subject = await prisma.subject.findUnique({
+        where: {
+          curriculumId_classLevel_code: { curriculumId, classLevel, code: subjectCode },
+        },
+      });
+      if (!subject) continue;
+
+      for (const chapterSeed of chapterSeeds) {
+        const chapter = await prisma.chapter.upsert({
+          where: {
+            subjectId_chapterNumber: {
+              subjectId: subject.id,
+              chapterNumber: chapterSeed.number,
+            },
+          },
+          update: { title: chapterSeed.title, titleBn: chapterSeed.titleBn },
+          create: {
+            subjectId: subject.id,
+            chapterNumber: chapterSeed.number,
+            title: chapterSeed.title,
+            titleBn: chapterSeed.titleBn,
+          },
+        });
+        chapters += 1;
+
+        for (const [index, topicSeed] of chapterSeed.topics.entries()) {
+          // Topic has no natural unique key, so find-then-write rather than
+          // upsert. Matching on title keeps re-runs from duplicating.
+          const existing = await prisma.topic.findFirst({
+            where: { chapterId: chapter.id, title: topicSeed.title },
+          });
+
+          const data = {
+            titleBn: topicSeed.titleBn,
+            difficulty: (topicSeed.difficulty ?? 'MEDIUM') as Difficulty,
+            sortOrder: index,
+          };
+
+          if (existing) {
+            await prisma.topic.update({ where: { id: existing.id }, data });
+          } else {
+            await prisma.topic.create({
+              data: { chapterId: chapter.id, title: topicSeed.title, ...data },
+            });
+          }
+          topics += 1;
+        }
+      }
+    }
+  }
+
+  console.log(`  chapters: ${chapters}, topics: ${topics}`);
+}
+
 async function seedDevAccounts(curriculumId: string) {
   if (process.env.NODE_ENV === 'production') {
     console.log('  dev accounts: skipped (NODE_ENV=production)');
@@ -112,7 +180,7 @@ async function seedDevAccounts(curriculumId: string) {
     });
 
     if (account.role === UserRole.STUDENT) {
-      await prisma.studentProfile.upsert({
+      const profile = await prisma.studentProfile.upsert({
         where: { userId: user.id },
         update: {},
         create: {
@@ -124,6 +192,16 @@ async function seedDevAccounts(curriculumId: string) {
           dailyGoalMinutes: 45,
         },
       });
+
+      // Every profile gets a FREE subscription, matching what the students
+      // module does on first setup. Quota enforcement assumes the row exists
+      // and should never have to special-case its absence.
+      const hasSubscription = await prisma.subscription.count({
+        where: { studentId: profile.id },
+      });
+      if (hasSubscription === 0) {
+        await prisma.subscription.create({ data: { studentId: profile.id } });
+      }
     }
 
     console.log(`  ${account.role.toLowerCase()}: ${account.phone}`);
@@ -133,6 +211,7 @@ async function seedDevAccounts(curriculumId: string) {
 async function main() {
   console.log('Seeding...');
   const curriculum = await seedCurriculum();
+  await seedCurriculumTree(curriculum.id);
   await seedDevAccounts(curriculum.id);
   console.log('Done.');
 }

@@ -162,6 +162,319 @@
           "auth"
         ]
       }
+    },
+    "/api/v1/me": {
+      "get": {
+        "description": "A null `profile` means academic setup has not been completed; the app routes to onboarding on that.",
+        "operationId": "StudentsController_getMe_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "The signed-in student",
+        "tags": [
+          "student"
+        ]
+      },
+      "patch": {
+        "description": "Serves both first-time academic setup and later edits. `subject_ids` replaces the whole selection rather than merging.",
+        "operationId": "StudentsController_updateMe_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Create or update the profile",
+        "tags": [
+          "student"
+        ]
+      }
+    },
+    "/api/v1/curriculum": {
+      "get": {
+        "operationId": "CurriculumController_listCurricula_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "List active curricula and the classes they cover",
+        "tags": [
+          "curriculum"
+        ]
+      }
+    },
+    "/api/v1/subjects": {
+      "get": {
+        "operationId": "CurriculumController_listSubjects_v1",
+        "parameters": [
+          {
+            "name": "curriculum",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "nctb"
+            }
+          },
+          {
+            "name": "class_level",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "List subjects, optionally filtered by class and curriculum",
+        "tags": [
+          "curriculum"
+        ]
+      }
+    },
+    "/api/v1/subjects/{id}": {
+      "get": {
+        "operationId": "CurriculumController_getSubject_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "One subject with its chapters",
+        "tags": [
+          "curriculum"
+        ]
+      }
+    },
+    "/api/v1/subjects/{id}/chapters": {
+      "get": {
+        "operationId": "CurriculumController_listChapters_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Chapters of a subject",
+        "tags": [
+          "curriculum"
+        ]
+      }
+    },
+    "/api/v1/chapters/{id}": {
+      "get": {
+        "operationId": "CurriculumController_getChapter_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "One chapter with its topics",
+        "tags": [
+          "curriculum"
+        ]
+      }
+    },
+    "/api/v1/chapters/{id}/topics": {
+      "get": {
+        "operationId": "CurriculumController_listTopics_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Topics of a chapter",
+        "tags": [
+          "curriculum"
+        ]
+      }
+    },
+    "/api/v1/admin/documents": {
+      "post": {
+        "description": "Deduplicates on content hash: uploading identical bytes returns the existing document with `deduplicated: true`.",
+        "operationId": "AdminController_uploadDocument_v1",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "title",
+                  "document_type"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "document_type": {
+                    "type": "string",
+                    "enum": [
+                      "UPLOADED",
+                      "QUEUED",
+                      "EXTRACTING",
+                      "CHUNKING",
+                      "EMBEDDING",
+                      "READY",
+                      "FAILED"
+                    ]
+                  },
+                  "subject_id": {
+                    "type": "string"
+                  },
+                  "chapter_id": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Upload a document and queue it for ingestion",
+        "tags": [
+          "admin"
+        ]
+      },
+      "get": {
+        "operationId": "AdminController_listDocuments_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "List uploaded documents and their processing state",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/documents/{id}/process": {
+      "post": {
+        "description": "Existing chunks are replaced, not appended to.",
+        "operationId": "AdminController_reprocess_v1",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Re-run ingestion for a document",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/knowledge-base/status": {
+      "get": {
+        "operationId": "AdminController_status_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Corpus and queue health",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/knowledge-base/chunks": {
+      "get": {
+        "description": "Search chunk text to find which passage produced a given answer — or that none did.",
+        "operationId": "AdminController_chunks_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Chunk inspector",
+        "tags": [
+          "admin"
+        ]
+      }
     }
   },
   "info": {
@@ -360,6 +673,58 @@
         "required": [
           "refresh_token"
         ]
+      },
+      "UpdateMeDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Rafi Hasan"
+          },
+          "class_level": {
+            "type": "number",
+            "example": 10,
+            "description": "MVP supports 9 and 10 only (D-02)."
+          },
+          "curriculum_code": {
+            "type": "string",
+            "example": "nctb"
+          },
+          "medium": {
+            "type": "string",
+            "enum": [
+              "BANGLA",
+              "ENGLISH",
+              "ENGLISH_VERSION"
+            ]
+          },
+          "target_exam": {
+            "type": "object",
+            "example": "SSC",
+            "nullable": true
+          },
+          "daily_goal_minutes": {
+            "type": "number",
+            "example": 45,
+            "minimum": 15,
+            "maximum": 240
+          },
+          "preferred_language": {
+            "type": "string",
+            "enum": [
+              "bn",
+              "en",
+              "banglish"
+            ]
+          },
+          "subject_ids": {
+            "description": "Replaces the entire selection. Send the full list, not a delta — a student dropping a subject has to be expressible.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       }
     }
   }

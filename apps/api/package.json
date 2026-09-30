@@ -48,7 +48,11 @@
     "uuid": "^11.0.4",
     "zod": "^3.24.1",
     "@anthropic-ai/sdk": "^0.129.0",
-    "@ai-tutor/prompts": "workspace:*"
+    "@ai-tutor/prompts": "workspace:*",
+    "@aws-sdk/client-s3": "^3.712.0",
+    "@aws-sdk/s3-request-presigner": "^3.712.0",
+    "bullmq": "^5.34.0",
+    "multer": "^1.4.5-lts.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.9",
@@ -66,6 +70,7 @@
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "@types/multer": "^1.4.12"
   }
 }

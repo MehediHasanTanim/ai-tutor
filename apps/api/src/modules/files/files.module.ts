@@ -1,11 +1,16 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
+import { StorageService } from './storage.service';
 
 /**
- * Files module — Object storage: signed URLs, MIME and size validation, retention.
+ * Object storage — architecture §3 `files`.
  *
- * Empty by design. Doc 07 (Weeks 1–2) calls for the module shape to exist from
- * day one so that later work has an obvious home and the dependency graph is
- * visible before there is code to tangle. Implementation lands in Weeks 3–4.
+ * Global because both admin document upload (Weeks 3–4) and student image
+ * questions (Weeks 7–8) need it, and threading it through two module trees
+ * buys nothing.
  */
-@Module({})
+@Global()
+@Module({
+  providers: [StorageService],
+  exports: [StorageService],
+})
 export class FilesModule {}

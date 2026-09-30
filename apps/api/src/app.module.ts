@@ -15,19 +15,20 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { HealthModule } from './modules/health/health.module';
 
-// Architecture §3 module shape. Empty until the week that fills them.
 import { AdminModule } from './modules/admin/admin.module';
 import { AiModule } from './modules/ai/ai.module';
-import { ChaptersModule } from './modules/chapters/chapters.module';
 import { CurriculumModule } from './modules/curriculum/curriculum.module';
 import { FilesModule } from './modules/files/files.module';
+import { RagModule } from './modules/rag/rag.module';
+import { StudentsModule } from './modules/students/students.module';
+
+// Architecture §3 module shape. Empty until the week that fills them.
+import { ChaptersModule } from './modules/chapters/chapters.module';
 import { LearningModule } from './modules/learning/learning.module';
 import { ProgressModule } from './modules/progress/progress.module';
 import { QuestionsModule } from './modules/questions/questions.module';
 import { QuizzesModule } from './modules/quizzes/quizzes.module';
-import { RagModule } from './modules/rag/rag.module';
 import { RecommendationsModule } from './modules/recommendations/recommendations.module';
-import { StudentsModule } from './modules/students/students.module';
 import { SubjectsModule } from './modules/subjects/subjects.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { TutorModule } from './modules/tutor/tutor.module';

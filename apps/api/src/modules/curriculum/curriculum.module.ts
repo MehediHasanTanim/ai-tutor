@@ -1,11 +1,19 @@
 import { Module } from '@nestjs/common';
+import { CurriculumController } from './curriculum.controller';
+import { CurriculumService } from './curriculum.service';
 
 /**
- * Curriculum module — Curriculum root: GET /api/v1/curriculum.
+ * Curriculum module — the read surface over Curriculum → Subject → Chapter →
+ * Topic (doc 04 §1).
  *
- * Empty by design. Doc 07 (Weeks 1–2) calls for the module shape to exist from
- * day one so that later work has an obvious home and the dependency graph is
- * visible before there is code to tangle. Implementation lands in Weeks 3–4.
+ * Architecture §3 lists `subjects` and `chapters` as separate modules; those
+ * exist as empty shells and re-export this service rather than duplicating
+ * queries over the same four tables. Admin writes live in the admin module,
+ * which is where RBAC is enforced.
  */
-@Module({})
+@Module({
+  controllers: [CurriculumController],
+  providers: [CurriculumService],
+  exports: [CurriculumService],
+})
 export class CurriculumModule {}

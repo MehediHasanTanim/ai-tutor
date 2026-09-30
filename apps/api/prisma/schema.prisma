@@ -5,7 +5,6 @@
 //   student_subjects, subscriptions, usage_records
 //
 // Deliberately NOT here yet — they arrive with the week that needs them:
-//   knowledge_documents / knowledge_chunks  (Weeks 3–4, needs pgvector)
 //   chat_sessions / chat_messages           (Weeks 5–6)
 //   quizzes / quiz_*                        (Weeks 9–10)
 //   topic_mastery / study_plans             (Weeks 11–12)
@@ -75,6 +74,30 @@ enum RequestType {
   IMAGE
   QUIZ_GEN
   EMBED
+}
+
+enum DocumentType {
+  TEXTBOOK
+  QUESTION_PAPER
+  NOTE
+  SOLUTION_GUIDE
+}
+
+/// Lifecycle of an uploaded document through the ingestion pipeline.
+enum DocumentStatus {
+  /// Stored in object storage, not yet queued.
+  UPLOADED
+  QUEUED
+  EXTRACTING
+  CHUNKING
+  EMBEDDING
+  READY
+  FAILED
+}
+
+enum ContentLanguage {
+  BN
+  EN
 }
 
 // ---------------------------------------------------------------------------
@@ -161,9 +184,10 @@ model Subject {
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  curriculum      Curriculum       @relation(fields: [curriculumId], references: [id], onDelete: Cascade)
+  curriculum      Curriculum          @relation(fields: [curriculumId], references: [id], onDelete: Cascade)
   chapters        Chapter[]
   studentSubjects StudentSubject[]
+  documents       KnowledgeDocument[]
 
   @@unique([curriculumId, classLevel, code])
   @@index([classLevel, isActive])
@@ -182,8 +206,9 @@ model Chapter {
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  topics  Topic[]
+  subject   Subject             @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  topics    Topic[]
+  documents KnowledgeDocument[]
 
   @@unique([subjectId, chapterNumber])
   @@index([subjectId])
@@ -269,4 +294,91 @@ model UsageRecord {
   @@index([createdAt])
   @@index([requestType, createdAt])
   @@map("usage_records")
+}
+
+// ---------------------------------------------------------------------------
+// Knowledge base — doc 04 §14–15, doc 07 §7.6, Weeks 3–4
+// ---------------------------------------------------------------------------
+
+model KnowledgeDocument {
+  id           String         @id @default(uuid()) @db.Uuid
+  title        String         @db.VarChar(255)
+  subjectId    String?        @map("subject_id") @db.Uuid
+  chapterId    String?        @map("chapter_id") @db.Uuid
+  documentType DocumentType   @map("document_type")
+  /// Where this came from — "NCTB Physics Class 10, 2024 edition".
+  source       String?        @db.VarChar(255)
+  /// Bumped when the same source is re-uploaded, so chunks stay attributable.
+  version      Int            @default(1)
+  storageKey   String         @map("storage_key") @db.VarChar(512)
+  mimeType     String         @map("mime_type") @db.VarChar(120)
+  sizeBytes    Int            @map("size_bytes")
+  /// SHA-256 of the file. Makes re-upload detection exact rather than by name.
+  checksum     String         @db.VarChar(64)
+  status       DocumentStatus @default(UPLOADED)
+  /// Why processing failed, surfaced in the admin panel.
+  statusDetail String?        @map("status_detail") @db.Text
+  pageCount    Int?           @map("page_count")
+  chunkCount   Int            @default(0) @map("chunk_count")
+  processedAt  DateTime?      @map("processed_at") @db.Timestamptz(6)
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  subject Subject?          @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  chapter Chapter?          @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+  chunks  KnowledgeChunk[]
+
+  /// Re-uploading identical bytes for the same source is a no-op, not a
+  /// duplicate corpus — doc 07 Weeks 3–4 requires ingestion be idempotent.
+  @@unique([checksum, version])
+  @@index([status])
+  @@index([subjectId, chapterId])
+  @@map("knowledge_documents")
+}
+
+/// A retrievable passage.
+///
+/// Doc 07 §7.6: the metadata columns are real columns alongside the jsonb, so
+/// filters are indexable rather than requiring jsonb extraction at query time.
+/// That matters because retrieval filters on class and subject *before* the
+/// vector search — a Class 10 student must never retrieve Class 9 chemistry.
+model KnowledgeChunk {
+  id         String          @id @default(uuid()) @db.Uuid
+  documentId String          @map("document_id") @db.Uuid
+  content    String          @db.Text
+  /// Position within the document, for stable ordering and re-chunk diffing.
+  chunkIndex Int             @map("chunk_index")
+  pageNumber Int?            @map("page_number")
+  section    String?         @db.VarChar(255)
+  tokenCount Int?            @map("token_count")
+
+  // Indexable metadata — doc 07 §7.6.
+  classLevel Int             @map("class_level") @db.SmallInt
+  subjectId  String?         @map("subject_id") @db.Uuid
+  chapterId  String?         @map("chapter_id") @db.Uuid
+  topicId    String?         @map("topic_id") @db.Uuid
+  language   ContentLanguage
+
+  /// Anything that does not warrant a column. Not used for filtering.
+  metadata   Json?           @db.JsonB
+
+  /// The embedding.
+  ///
+  /// DIMENSION IS A ONE-WAY DECISION. Doc 07 D-11: "Changing this later means
+  /// re-embedding the entire corpus — decide once, deliberately." 1024 is a
+  /// placeholder matching common multilingual models; it must be reconciled
+  /// with whatever `packages/eval` selects before any real corpus is ingested.
+  /// Prisma cannot express pgvector types, so this is managed by raw SQL in
+  /// the migration and written through $executeRaw.
+  embedding  Unsupported("vector(1024)")?
+
+  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  document KnowledgeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, chunkIndex])
+  @@index([classLevel, subjectId])
+  @@index([chapterId])
+  @@index([documentId])
+  @@map("knowledge_chunks")
 }

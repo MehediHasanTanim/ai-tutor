@@ -36,7 +36,7 @@ describe('parseImageAnalysis', () => {
   it('treats a missing confidence as zero, not as certainty', () => {
     // The failure must land on the safe side of the retake threshold:
     // architecture §9 would otherwise show a confident wrong answer.
-    const { confidence, ...withoutConfidence } = COMPLETE;
+    const { confidence: _confidence, ...withoutConfidence } = COMPLETE;
     const result = parseImageAnalysis(JSON.stringify(withoutConfidence));
 
     expect(result.confidence).toBe(0);

@@ -1,11 +1,17 @@
 import { Module } from '@nestjs/common';
+import { CurriculumModule } from '../curriculum/curriculum.module';
+import { StudentsController } from './students.controller';
+import { StudentsService } from './students.service';
 
 /**
- * Students module — Student profile and academic setup: GET/PATCH /api/v1/me, subject selection.
+ * Student profile and academic setup — doc 04 "Student".
  *
- * Empty by design. Doc 07 (Weeks 1–2) calls for the module shape to exist from
- * day one so that later work has an obvious home and the dependency graph is
- * visible before there is code to tangle. Implementation lands in Weeks 3–4.
+ * Owns `GET/PATCH /api/v1/me` and subject selection.
  */
-@Module({})
+@Module({
+  imports: [CurriculumModule],
+  controllers: [StudentsController],
+  providers: [StudentsService],
+  exports: [StudentsService],
+})
 export class StudentsModule {}

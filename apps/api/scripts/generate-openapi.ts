@@ -32,6 +32,11 @@ async function main(): Promise<void> {
   await app.close();
 
   console.log(`OpenAPI written to ${outputPath}`);
+
+  // The ingestion worker and queue hold Redis connections that outlive
+  // app.close(), so the event loop never drains and the script hangs. This
+  // is a build-time generator with nothing left to flush — exit explicitly.
+  process.exit(0);
 }
 
 main().catch((error) => {
